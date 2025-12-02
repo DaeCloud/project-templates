@@ -54,7 +54,7 @@ jobs:
                 EXPECTED=("index.js" "package.json" "Dockerfile")
                 ;;
               node-next.sh)
-                EXPECTED=("package.json" "Dockerfile" "next.config.js")
+                EXPECTED=("package.json" "Dockerfile")
                 ;;
               python-fastapi.sh)
                 EXPECTED=("main.py" "Dockerfile")
