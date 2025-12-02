@@ -62,9 +62,6 @@ jobs:
               python-flask.sh)
                 EXPECTED=("app.py" "Dockerfile")
                 ;;
-              python-django.sh)
-                EXPECTED=("Dockerfile" "$PROJECT_NAME/manage.py")
-                ;;
               go-gin.sh|go-fiber.sh)
                 EXPECTED=("main.go" "Dockerfile")
                 ;;
