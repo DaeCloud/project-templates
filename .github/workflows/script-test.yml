@@ -1,0 +1,103 @@
+name: Test Project Templates
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl bash docker.io
+
+      - name: Run template tests
+        run: |
+          set -e
+          SCRIPTS=(
+            "node-express.sh"
+            "node-next.sh"
+            "python-fastapi.sh"
+            "python-flask.sh"
+            "python-django.sh"
+            "go-gin.sh"
+            "go-fiber.sh"
+            "rust-axum.sh"
+            "rust-actix.sh"
+            "php-laravel.sh"
+            "react-vite.sh"
+            "sveltekit.sh"
+            "html-tailwind.sh"
+          )
+
+          for SCRIPT in "${SCRIPTS[@]}"; do
+            echo "=========================================="
+            echo "Testing $SCRIPT"
+            TMPDIR=$(mktemp -d)
+            cp scripts/$SCRIPT $TMPDIR/
+            cd $TMPDIR
+
+            chmod +x $SCRIPT
+
+            PROJECT_NAME="test_project"
+            ./$SCRIPT $PROJECT_NAME
+
+            # Expected basic files per template
+            case "$SCRIPT" in
+              node-express.sh)
+                EXPECTED=("index.js" "package.json" "Dockerfile")
+                ;;
+              node-next.sh)
+                EXPECTED=("package.json" "Dockerfile" "next.config.js")
+                ;;
+              python-fastapi.sh)
+                EXPECTED=("main.py" "Dockerfile")
+                ;;
+              python-flask.sh)
+                EXPECTED=("app.py" "Dockerfile")
+                ;;
+              python-django.sh)
+                EXPECTED=("Dockerfile" "$PROJECT_NAME/manage.py")
+                ;;
+              go-gin.sh|go-fiber.sh)
+                EXPECTED=("main.go" "Dockerfile")
+                ;;
+              rust-axum.sh|rust-actix.sh)
+                EXPECTED=("main.rs" "Cargo.toml" "Dockerfile")
+                ;;
+              php-laravel.sh)
+                EXPECTED=("Dockerfile")
+                ;;
+              react-vite.sh|sveltekit.sh)
+                EXPECTED=("package.json" "Dockerfile")
+                ;;
+              html-tailwind.sh)
+                EXPECTED=("index.html" "Dockerfile")
+                ;;
+            esac
+
+            # Check all expected files exist
+            for FILE in "${EXPECTED[@]}"; do
+              if [ ! -e "$PROJECT_NAME/$FILE" ]; then
+                echo "ERROR: $FILE not found in $PROJECT_NAME"
+                exit 1
+              fi
+            done
+
+            echo "$SCRIPT structure test passed!"
+
+            # Docker build test
+            echo "Building Docker image for $PROJECT_NAME..."
+            docker build -t "test_$PROJECT_NAME" "$PROJECT_NAME"
+
+            echo "$SCRIPT Docker build passed!"
+
+            cd -
+            rm -rf $TMPDIR
+          done
