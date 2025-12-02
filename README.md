@@ -57,7 +57,7 @@ Each script bootstraps a fully working project with sample code.
 
 ### **1. Download a script**
 ```bash
-wget https://raw.githubusercontent.com/<your-username>/<repo>/main/node-express.sh
+wget https://raw.githubusercontent.com/DaeCloud/project-templates/refs/heads/main/scripts/node-express.sh
 chmod +x node-express.sh
 ```
 
